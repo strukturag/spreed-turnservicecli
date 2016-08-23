@@ -24,14 +24,14 @@ type URNsWithID struct {
 	Prio int      `json:"prio"`
 }
 
-// GeoResponse defines a REST response containing TURN geo
+// GeoResponse defines a REST response containing TURN geo.
 type GeoResponse struct {
 	Success bool     `json:"success"`
 	Nonce   string   `json:"nonce"`
 	Geo     *GeoData `json:"geo,omitempty"`
 }
 
-// GeoData defines ordered TURN IDs
+// GeoData defines ordered TURN IDs.
 type GeoData struct {
 	Prefer []string `json:"prefer"`
 }
