@@ -15,7 +15,7 @@ import (
 
 // A TURNCredentialsHandler is a function handler which can be registered to
 // get called when the cached TURN credentials change.
-type TURNCredentialsHandler func(*CachedCredentialsData)
+type TURNCredentialsHandler func(*CachedCredentialsData, error)
 
 // A TURNService provides the TURN service remote API.
 type TURNService struct {
@@ -153,7 +153,6 @@ func (service *TURNService) Credentials(fetch bool) *CachedCredentialsData {
 			response, err = service.fetchCredentials(accessToken, clientID, session)
 			if err != nil {
 				service.err = err
-				return nil
 			}
 		} else {
 			credentials = service.credentials
@@ -181,11 +180,11 @@ func (service *TURNService) Credentials(fetch bool) *CachedCredentialsData {
 		// Already locked from above if response is not nil.
 		service.credentials = credentials
 		service.session = response.Session
+	}
 
-		// Trigger registered handlers.
-		for _, h := range service.handlers {
-			go h(credentials)
-		}
+	// Trigger registered handlers.
+	for _, h := range service.handlers {
+		go h(credentials, err)
 	}
 
 	return credentials
