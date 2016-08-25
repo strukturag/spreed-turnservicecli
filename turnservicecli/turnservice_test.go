@@ -1,6 +1,10 @@
 package turnservicecli
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -8,22 +12,32 @@ import (
 
 var ServiceURI string
 var ClientID string
+var AccessToken string
+var HMacSecret string
 
 func TestMain(m *testing.M) {
 	ServiceURI = os.Getenv("SERVICE_URI")
+	AccessToken = os.Getenv("ACCESS_TOKEN")
 	ClientID = os.Getenv("CLIENT_ID")
+	HMacSecret = os.Getenv("HMAC_SECRET")
 
 	res := m.Run()
 	os.Exit(res)
 }
 
 func TestTURNServiceCredentials(t *testing.T) {
-	if ServiceURI == "" || ClientID == "" {
+	if ServiceURI == "" {
 		t.SkipNow()
 	}
 
+	if HMacSecret != "" {
+		mac := hmac.New(sha256.New, []byte(HMacSecret))
+		mac.Write([]byte(ClientID))
+		AccessToken = fmt.Sprintf("h%s", hex.EncodeToString(mac.Sum(nil)))
+	}
+
 	turnService := NewTURNService(ServiceURI, 0, nil)
-	turnService.Open(ClientID, "")
+	turnService.Open(AccessToken, ClientID, "")
 
 	turn := turnService.Credentials(false)
 	if turn != nil {
@@ -32,7 +46,7 @@ func TestTURNServiceCredentials(t *testing.T) {
 
 	turn = turnService.Credentials(true)
 	if turn == nil {
-		t.Errorf("turn data must not be nil")
+		t.Errorf("turn data must not be nil: %s", turnService.LastError().Error())
 	}
 	if turnService.session == "" {
 		t.Fatalf("session must not be empty: %s", turnService.session)
