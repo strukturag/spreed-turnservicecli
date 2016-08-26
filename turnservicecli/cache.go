@@ -59,7 +59,7 @@ func (c *CachedCredentialsData) TTL() int64 {
 func (c *CachedCredentialsData) Close() {
 	c.Lock()
 	defer c.Unlock()
-	if !c.expired {
+	if !c.expired && !c.closed {
 		close(c.quit)
 	}
 	c.closed = true
