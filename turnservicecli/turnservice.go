@@ -259,8 +259,9 @@ func (service *TURNService) fetchCredentials(accessToken, clientID, session stri
 	defer result.Body.Close()
 
 	switch result.StatusCode {
-	case 200:
-	case 403:
+	case http.StatusOK:
+		// Success.
+	case http.StatusForbidden:
 		content, _ := ioutil.ReadAll(result.Body)
 		return nil, fmt.Errorf("forbidden: %s", content)
 	default:
