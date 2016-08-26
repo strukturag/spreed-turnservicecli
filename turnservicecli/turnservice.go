@@ -182,9 +182,11 @@ func (service *TURNService) Credentials(fetch bool) *CachedCredentialsData {
 		service.session = response.Session
 	}
 
-	// Trigger registered handlers.
-	for _, h := range service.handlers {
-		go h(credentials, err)
+	if fetch {
+		// Trigger registered handlers.
+		for _, h := range service.handlers {
+			go h(credentials, err)
+		}
 	}
 
 	return credentials
