@@ -26,7 +26,7 @@ func NewCachedCredentialsData(turn *CredentialsData, expirationPercentile uint) 
 	}
 
 	go func() {
-		expiry := turn.TTL / 100 * int64(expirationPercentile)
+		expiry := turn.TTL * int64(expirationPercentile) / 100
 		select {
 		case <-c.quit:
 		case <-time.After(time.Duration(expiry) * time.Second):
