@@ -139,6 +139,7 @@ func (service *TURNService) Credentials(fetch bool) *CachedCredentialsData {
 	service.RUnlock()
 
 	var err error
+	var fetched bool
 	var response *CredentialsResponse
 
 	if credentials == nil {
@@ -154,6 +155,7 @@ func (service *TURNService) Credentials(fetch bool) *CachedCredentialsData {
 			if err != nil {
 				service.err = err
 			}
+			fetched = true
 		} else {
 			credentials = service.credentials
 		}
@@ -169,6 +171,7 @@ func (service *TURNService) Credentials(fetch bool) *CachedCredentialsData {
 				} else {
 					credentials = service.credentials
 				}
+				fetched = true
 			} else {
 				credentials = nil
 			}
@@ -182,7 +185,7 @@ func (service *TURNService) Credentials(fetch bool) *CachedCredentialsData {
 		service.session = response.Session
 	}
 
-	if fetch {
+	if fetched {
 		// Trigger registered handlers.
 		for _, h := range service.handlers {
 			go h(credentials, err)
