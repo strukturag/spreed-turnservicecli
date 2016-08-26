@@ -10,6 +10,7 @@ type CachedCredentialsData struct {
 	sync.RWMutex
 
 	Turn    *CredentialsData
+	expires int64
 	expired bool
 
 	closed bool
@@ -19,8 +20,9 @@ type CachedCredentialsData struct {
 // NewCachedCredentialsData add expiration timer with a percentile to CredentialsData.
 func NewCachedCredentialsData(turn *CredentialsData, expirationPercentile uint) *CachedCredentialsData {
 	c := &CachedCredentialsData{
-		Turn: turn,
-		quit: make(chan bool),
+		Turn:    turn,
+		expires: time.Now().Unix() + turn.TTL,
+		quit:    make(chan bool),
 	}
 
 	go func() {
@@ -42,6 +44,15 @@ func (c *CachedCredentialsData) Expired() bool {
 	c.RLock()
 	defer c.RUnlock()
 	return c.expired || c.closed
+}
+
+// TTL returns the remaining TTL of the cached CredentialsData.
+func (c *CachedCredentialsData) TTL() int64 {
+	ttl := c.expires - time.Now().Unix()
+	if ttl < 0 {
+		return 0
+	}
+	return ttl
 }
 
 // Close closes the cached CredentialsData and expires it if not already expired.
