@@ -210,11 +210,14 @@ func (service *TURNService) FetchCredentials() (*CredentialsResponse, error) {
 
 func (service *TURNService) fetchCredentials(accessToken, clientID, session string) (*CredentialsResponse, error) {
 	if accessToken == "" && clientID == "" {
-		return nil, fmt.Errorf("One of accessToken/clientId must be set")
+		return nil, fmt.Errorf("missign one of accessToken/clientId")
 	}
 
 	var body *bytes.Buffer
-	nonce := "make-me-random" //XXX(longsleep): Create random nonce.
+	nonce, err := makeNonce()
+	if err != nil {
+		return nil, fmt.Errorf("failed to make nonce: %s", err.Error())
+	}
 
 	data := url.Values{}
 	data.Set("nonce", nonce)
@@ -263,6 +266,10 @@ func (service *TURNService) fetchCredentials(accessToken, clientID, session stri
 
 	if !response.Success {
 		return &response, fmt.Errorf("credentials response unsuccessfull")
+	}
+
+	if response.Nonce != nonce {
+		return &response, fmt.Errorf("nonce mismatch")
 	}
 
 	if response.Nonce != nonce {
