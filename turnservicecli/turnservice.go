@@ -13,6 +13,10 @@ import (
 	"time"
 )
 
+const (
+	requestTimeoutSeconds = 30
+)
+
 // A TURNCredentialsHandler is a function handler which can be registered to
 // get called when the cached TURN credentials change.
 type TURNCredentialsHandler func(*CachedCredentialsData, error)
@@ -241,7 +245,7 @@ func (service *TURNService) fetchCredentials(accessToken, clientID, session stri
 	transport := &http.Transport{
 		Proxy:               http.ProxyFromEnvironment,
 		TLSClientConfig:     service.tlsConfig,
-		TLSHandshakeTimeout: time.Second * 30,
+		TLSHandshakeTimeout: time.Second * requestTimeoutSeconds,
 	}
 
 	client := &http.Client{
