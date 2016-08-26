@@ -46,7 +46,7 @@ func (c *CachedCredentialsData) Expired() bool {
 	return c.expired || c.closed
 }
 
-// TTL returns the remaining TTL of the cached CredentialsData.
+// TTL returns the remaining TTL in seconds of the cached CredentialsData.
 func (c *CachedCredentialsData) TTL() int64 {
 	ttl := c.expires - time.Now().Unix()
 	if ttl < 0 {
