@@ -1,6 +1,6 @@
 /*
 Package spreed-turnservicecli is providing sub packages to interact with the
-Spreed.ME TURN service.
+Spreed TURN service.
 
 It contains the following packages:
 
