@@ -277,9 +277,5 @@ func (service *TURNService) fetchCredentials(accessToken, clientID, session stri
 		return &response, fmt.Errorf("nonce mismatch")
 	}
 
-	if response.Nonce != nonce {
-		return &response, fmt.Errorf("invalid nonce")
-	}
-
 	return &response, nil
 }
