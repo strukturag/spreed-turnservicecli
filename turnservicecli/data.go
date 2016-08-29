@@ -19,9 +19,11 @@ type CredentialsData struct {
 
 // URNsWithID defines TURN servers groups with ID.
 type URNsWithID struct {
-	ID   string   `json:"id"`
-	URNs []string `json:"urns"`
-	Prio int      `json:"prio"`
+	ID    string            `json:"id"`
+	URNs  []string          `json:"urns"`
+	Prio  int               `json:"prio"`
+	Label string            `json:"label,omitempty"`
+	I18N  map[string]string `json:"i18n,omitempty"`
 }
 
 // GeoResponse defines a REST response containing TURN geo.
