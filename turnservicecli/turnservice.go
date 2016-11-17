@@ -15,6 +15,10 @@ import (
 
 const (
 	requestTimeoutSeconds = 30
+
+	// Still return "expired" credentials if they are valid for at least this
+	// many seconds (but trigger refresh).
+	minCredentialsTTL = 10
 )
 
 // A TURNCredentialsHandler is a function handler which can be registered to
@@ -108,6 +112,13 @@ func (service *TURNService) Close() {
 	service.session = ""
 }
 
+func (service *TURNService) scheduleRefresh() {
+	select {
+	case service.refresh <- true:
+	default:
+	}
+}
+
 // Autorefresh enables or disables automatic refresh of TURNService credentials.
 func (service *TURNService) Autorefresh(autorefresh bool) {
 	service.Lock()
@@ -118,10 +129,7 @@ func (service *TURNService) Autorefresh(autorefresh bool) {
 	service.autorefresh = autorefresh
 	if autorefresh {
 		// Trigger instant refresh, do not care if already pending.
-		select {
-		case service.refresh <- true:
-		default:
-		}
+		service.scheduleRefresh()
 	}
 }
 
@@ -176,6 +184,9 @@ func (service *TURNService) Credentials(fetch bool) *CachedCredentialsData {
 					credentials = service.credentials
 				}
 				fetched = true
+			} else if credentials.TTL() >= minCredentialsTTL {
+				// Credentials are about to expire, schedule refresh
+				service.scheduleRefresh()
 			} else {
 				credentials = nil
 			}
