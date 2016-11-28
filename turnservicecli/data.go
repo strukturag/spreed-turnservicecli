@@ -1,9 +1,14 @@
 package turnservicecli
 
+import (
+	"time"
+)
+
 // CredentialsResponse defines a REST response containing TURN data.
 type CredentialsResponse struct {
 	Success bool             `json:"success"`
 	Nonce   string           `json:"nonce"`
+	Expires *time.Time       `json:"expires,omitempty"`
 	Turn    *CredentialsData `json:"turn"`
 	Session string           `json:"session,omitempty"`
 }
